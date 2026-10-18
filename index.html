@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điều hành Threads</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--mute:#6b6a66;--line:#e6e4de;--amber:#a86b12;--amberbg:#fdf3e1;--blue:#2b6cb0;--bluebg:#e8f0fb;--green:#2f7d4f;--greenbg:#e5f4ea;--red:#c0392b;--redbg:#fbe7e4;--violet:#6b46c1;--violetbg:#efe9fb;--accent:#1d1d1b;--accentink:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1e1c;--ink:#efede7;--mute:#a19f98;--line:#2e2d2a;--amber:#e0a84a;--amberbg:#3a2e17;--blue:#7fb0ea;--bluebg:#1b2b40;--green:#6cc48e;--greenbg:#173022;--red:#ee8a7e;--redbg:#3d1d19;--violet:#b9a2f0;--violetbg:#2a2140;--accent:#efede7;--accentink:#141413}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 64px}
+h1{font-size:22px;margin:0}h2{font-size:16px;margin:28px 0 10px}.sub{color:var(--mute);font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+a{color:var(--blue)}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.chinh{background:var(--accent);color:var(--accentink);border-color:var(--accent)}
+.btn.do{color:var(--red)}
+.btn:disabled{opacity:.5;cursor:default}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+@media (max-width:620px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.tile span{color:var(--mute);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.when{font-size:14px}.when b{margin-right:6px}.when span{color:var(--mute)}
+.nd{white-space:pre-wrap;font-size:14px;overflow-wrap:anywhere}.nd.gon{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.tag{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px}
+.chip{font-size:12px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.CHO_DUYET{background:var(--amberbg);color:var(--amber)}.DUYET,.DANG_DANG{background:var(--bluebg);color:var(--blue)}
+.DA_DANG{background:var(--greenbg);color:var(--green)}.LOI{background:var(--redbg);color:var(--red)}.CAN_SUA{background:var(--violetbg);color:var(--violet)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.note{font-size:13px;border-radius:8px;padding:8px 10px;margin-top:8px;white-space:pre-wrap}
+.note.ban{background:var(--violetbg)}.note.claude{background:var(--greenbg)}.note b{display:block;font-size:12px;color:var(--mute)}
+.note.canh{background:var(--amberbg)}.note.cho{background:var(--bg);color:var(--mute)}.note.loi{background:var(--redbg);color:var(--red)}
+textarea{width:100%;min-height:110px;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin-top:10px}
+.dem{font-size:12px;color:var(--mute);text-align:right}.dem.vuot{color:var(--red)}
+.nums{display:flex;gap:14px;margin-top:8px;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;flex-wrap:wrap}.nums b{color:var(--ink)}
+.empty{color:var(--mute);font-size:14px;padding:12px 0}
+.err{font-size:12px;color:var(--red);margin-top:6px}
+.bl .ai{font-size:12px;color:var(--mute);margin-bottom:4px}.bl .ai b{color:var(--ink)}
+.bl .bai{font-size:12px;color:var(--mute);border-left:2px solid var(--line);padding-left:8px;margin-bottom:6px}
+.goiy{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.goiy button{font:inherit;font-size:13px;text-align:left;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.goiy button.chon{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tonghop{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14px;white-space:pre-wrap}
+.tonghop b{display:block;font-size:12px;color:var(--mute);margin-bottom:2px}
+.tabs{display:flex;gap:6px;margin-top:16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:inherit;font-size:14px;padding:8px 12px;border:0;background:none;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.tab .so{font-size:12px;background:var(--line);color:var(--ink);border-radius:99px;padding:0 7px;margin-left:2px}
+.ds{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hang{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.hang:last-child{border-bottom:0}.hang:hover{background:var(--bg)}
+.hw{min-width:96px;font-size:13px;color:var(--mute)}.hw b{color:var(--ink)}
+.ht{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hang.mo{justify-content:flex-end;font-size:12px;color:var(--mute);padding:6px 14px}
+.ds .card{border:0;border-radius:0;border-bottom:1px solid var(--line);margin:0}
+.hang.tinh{cursor:default}.hang.tinh:hover{background:none}
+.hs{font-size:12px;color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.thanh{height:8px;background:var(--line);border-radius:99px;overflow:hidden}.thanh i{display:block;height:100%;background:var(--green);border-radius:99px}
+@media (max-width:620px){.hang{flex-wrap:wrap}.hs{width:100%}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cd{padding:10px 14px;border-bottom:1px solid var(--line)}.cd:last-child{border-bottom:0}
+.cd1{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+input.o{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0;flex:1}
+input.o.gio{flex:0 0 74px}input.o[type=time]{flex:0 0 120px}input.o[type=date]{flex:0 0 160px}input.o.rong{width:100%}
+select.o{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.media{margin-top:8px}.media img,.media video{max-width:100%;max-height:260px;border-radius:8px;border:1px solid var(--line);display:block}
+.canhbao{background:var(--redbg);color:var(--red);border-radius:12px;padding:10px 14px;margin-top:14px;font-size:13px}
+.canhbao b{display:block}
+.khoamoi{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;word-break:break-all;margin-top:8px}
+.dangnhap{max-width:420px;margin:12vh auto 0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--accent);color:var(--accentink);padding:8px 14px;border-radius:99px;font-size:13px;display:none;max-width:90%;z-index:9}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="empty">Đang mở…</div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="chonFile" accept="image/jpeg,image/png,video/mp4,video/quicktime" style="display:none">
+
+<script src="https://cdn.jsdelivr.net/npm/convex@1.47.0/dist/browser.bundle.js"></script>
+<script>
+/* ====== SỬA DÒNG NÀY SAU KHI CÀI CONVEX (địa chỉ kết thúc bằng .convex.cloud) ====== */
+var DIA_CHI_MAY_CHU = "https://fast-ermine-363.ap-southeast-2.convex.cloud";
+/* ===================================================================================== */
+
+var KHOA = "", MC = "", client = null, huyNghe = null;
+try { KHOA = localStorage.getItem("thr_khoa") || ""; MC = localStorage.getItem("thr_mc") || DIA_CHI_MAY_CHU; } catch (e) { MC = DIA_CHI_MAY_CHU; }
+
+var D = null, TAB = "viec", MO = {}, NHAP = {}, CHON = {}, CHO_VE = false, KHOA_MOI = "", BAI_CHO_ANH = null;
+var TEN = {CHO_DUYET:"Chờ duyệt",DUYET:"Đã duyệt",DANG_DANG:"Đang đăng",DA_DANG:"Đã đăng",LOI:"Lỗi",CAN_SUA:"Chờ ChatGPT sửa"};
+var LOAI_KHOA = {chu:"Chủ", tro_ly:"Trợ lý", plugin:"Ghim"};
+var MAX = 500;
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function n(x){return Number(x||0).toLocaleString("vi-VN")}
+function bao(t){var el=document.getElementById("toast");el.textContent=t;el.style.display="block";clearTimeout(bao.h);bao.h=setTimeout(function(){el.style.display="none"},3000)}
+function loiChu(e){if(e&&e.data)return String(e.data);var m=String(e&&e.message||e);var k=m.match(/ConvexError: ([^\n]+)/);if(k)return k[1];if(/Server Error/.test(m))return "Máy chủ gặp lỗi, thử lại sau ít phút.";return m}
+
+/* ---------------- ĐĂNG NHẬP ---------------- */
+function veDangNhap(loi){
+  document.getElementById("app").innerHTML='<div class="dangnhap"><h1>Điều hành Threads</h1><p class="sub">Dán khoá chủ (bắt đầu bằng chu_) để vào. Máy này sẽ nhớ, lần sau không phải dán lại.</p>'
+    +'<div class="card">'+(DIA_CHI_MAY_CHU?'':'<input class="o rong" id="dnMc" placeholder="Địa chỉ máy chủ (…convex.cloud)" value="'+esc(MC)+'" style="margin-bottom:8px">')
+    +'<input class="o rong" id="dnKhoa" type="password" placeholder="Khoá chủ" value="">'
+    +(loi?'<div class="err">'+esc(loi)+'</div>':'')
+    +'<div class="actions"><button class="btn chinh" data-hd="dangnhap">Vào</button></div></div></div>';
+}
+function batDau(){
+  if(!window.convex){document.getElementById("app").innerHTML='<div class="empty">Không tải được thư viện. Kiểm tra mạng rồi tải lại trang.</div>';return}
+  if(!MC||!KHOA){veDangNhap();return}
+  try{ if(client) client.close(); client=new convex.ConvexClient(MC); }catch(e){veDangNhap("Địa chỉ máy chủ không đúng.");return}
+  if(huyNghe) try{huyNghe()}catch(e){}
+  huyNghe=client.onUpdate("trang:duLieu",{key:KHOA},function(d){
+    var lan1=!D; D=d;
+    if(lan1){ var u=new URL(location.href),k=u.searchParams.get("ket_noi"); if(k){ bao(k==="ok"?"Đã kết nối Threads":"Kết nối Threads chưa xong ("+k+")"); TAB="caidat"; u.searchParams.delete("ket_noi"); history.replaceState(null,"",u.toString()); } }
+    veNeuDuoc();
+  },function(err){
+    D=null; var m=loiChu(err);
+    if(/Khoá|đăng nhập/i.test(m)){ try{localStorage.removeItem("thr_khoa")}catch(e){} KHOA=""; }
+    veDangNhap(m);
+  });
+}
+/* Đang gõ thì chưa vẽ lại (để không mất chữ), gõ xong mới vẽ. */
+function dangGo(){var a=document.activeElement;return a&&/TEXTAREA|INPUT|SELECT/.test(a.tagName)&&document.getElementById("app").contains(a)}
+function veNeuDuoc(){ if(dangGo()){CHO_VE=true;return} ve(); }
+document.addEventListener("focusout",function(){setTimeout(function(){if(CHO_VE&&!dangGo()){CHO_VE=false;ve()}},150)});
+
+/* ---------------- GỌI MÁY CHỦ ---------------- */
+function khoaNut(){document.querySelectorAll("#app button").forEach(function(x){x.disabled=true})}
+function chay(loai,ten,args,tin,sau){
+  khoaNut();
+  var a=Object.assign({key:KHOA},args||{});
+  return client[loai](ten,a).then(function(r){ if(tin)bao(tin); if(sau)sau(r); ve(); return r })
+    .catch(function(e){ ve(); bao("Lỗi: "+loiChu(e)); });
+}
+function capNhat(b,hd,giaTri,tin){ return chay("mutation","trang:capNhatBai",{baiId:b.id,hanhDong:hd,giaTri:giaTri||""},tin,function(){delete MO[b.id]}) }
+
+/* ---------------- THẺ BÀI ---------------- */
+function nut(b,hd,nhan,kieu){return '<button class="btn'+(kieu?' '+kieu:'')+'" data-k="'+esc(b.id)+'" data-hd="'+hd+'">'+nhan+'</button>'}
+function the(b){
+  var k=b.id,mo=MO[k]||"",daDang=(b.tt==="DA_DANG"||b.tt==="DANG_DANG");
+  var h='<div class="card"><div class="head"><div class="when"><b>'+esc(b.ngay)+'</b><span>'+esc(b.gio)+'</span></div>'
+    +'<span class="chip '+esc(b.tt)+'">'+(TEN[b.tt]||esc(b.tt||"?"))+'</span></div>';
+  if(b.chuDe)h+='<div class="tag">#'+esc(b.chuDe)+'</div>';
+  h+='<div class="nd'+(daDang?' gon':'')+'" data-hd="mo">'+esc(b.nd)+'</div>';
+  if(b.anh&&b.anh.url)h+='<div class="media">'+(b.anh.loai==="VIDEO"?'<video src="'+esc(b.anh.url)+'" controls preload="metadata"></video>':'<img src="'+esc(b.anh.url)+'" alt="">')+'</div>';
+  if(b.gopY&&(b.tt==="CAN_SUA"||b.phanHoi))h+='<div class="note ban"><b>Bạn nhờ sửa</b>'+esc(b.gopY)+'</div>';
+  if(b.phanHoi)h+='<div class="note claude"><b>ChatGPT trả lời</b>'+esc(b.phanHoi)+'</div>';
+  if(b.tt==="LOI"&&b.kq)h+='<div class="err">'+esc(b.kq)+'</div>';
+  if(daDang){
+    if(b.tt==="DA_DANG")h+='<div class="nums"><span><b>'+n(b.xem)+'</b> xem</span><span><b>'+n(b.thich)+'</b> thích</span><span><b>'+n(b.traLoi)+'</b> trả lời</span><span><b>'+n(b.dangLai)+'</b> đăng lại</span>'+(b.link?'<a href="'+esc(b.link)+'" target="_blank" rel="noopener">Mở bài</a>':'')+'</div>';
+    else h+='<div class="note cho">Đang đăng lên Threads, khoảng 1 phút…</div>';
+    return h+'</div>';
+  }
+  if(mo==="gio"){
+    h+='<div class="cd1" style="margin-top:10px"><input class="o" type="date" id="gd_'+esc(k)+'" value="'+esc(b.iso)+'"><input class="o" type="time" id="gt_'+esc(k)+'" value="'+esc(b.gio)+'"></div>'
+      +'<div class="actions">'+nut(b,"luugio","Lưu giờ mới","chinh")+nut(b,"dong","Huỷ")+'</div>';
+  }else if(mo==="sua"){
+    h+='<input class="o rong" id="th_'+esc(k)+'" placeholder="Thẻ chủ đề (VD: Gia sư)" value="'+esc(b.chuDe)+'" style="margin-top:10px">'
+      +'<textarea data-o="'+esc(k)+'">'+esc(b.nd)+'</textarea><div class="dem" data-dem="'+esc(k)+'">'+b.nd.length+'/'+MAX+'</div>'
+      +'<div class="actions">'+nut(b,"luusua","Lưu","chinh")+nut(b,"dong","Huỷ")+'</div>';
+  }else if(mo==="gopy"){
+    h+='<textarea data-o="'+esc(k)+'" placeholder="Muốn sửa gì? VD: ngắn lại, bớt nghiêm túc. Để trống thì ChatGPT tự góp ý."></textarea>'
+      +'<div class="actions">'+nut(b,"guigopy","Mở ChatGPT để sửa","chinh")+nut(b,"dong","Huỷ")+'</div>';
+  }else if(mo==="xoa"){
+    h+='<div class="note canh">Xoá hẳn bài này?</div><div class="actions">'+nut(b,"xoathat","Xoá","chinh")+nut(b,"dong","Thôi")+'</div>';
+  }else{
+    h+='<div class="actions">';
+    if(b.tt==="DUYET")h+=nut(b,"boduyet","Bỏ duyệt");
+    else if(b.tt!=="CAN_SUA")h+=nut(b,"duyet","Duyệt","chinh");
+    h+=nut(b,"mosua","Sửa chữ")+nut(b,"mogio","Đổi giờ");
+    if(b.tt==="CAN_SUA")h+=nut(b,"huygopy","Thôi, giữ bản này");
+    else h+=nut(b,"mogopy","Nhờ ChatGPT sửa");
+    h+=b.anh?nut(b,"boanh","Bỏ ảnh/video"):nut(b,"themanh","Thêm ảnh/video");
+    h+=nut(b,"moxoa","Xoá","do");
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+
+/* ---------------- THẺ BÌNH LUẬN ---------------- */
+function theBL(c){
+  var k="bl:"+c.ma,boQua=c.goiY[0]&&/^B[ỎO] QUA/i.test(c.goiY[0]);
+  var goiY=boQua?[]:c.goiY;
+  if(NHAP[k]===undefined)NHAP[k]=goiY[0]||"";
+  if(CHON[k]===undefined)CHON[k]=goiY.length?0:-1;
+  var h='<div class="card bl"><div class="ai"><b>@'+esc(c.nguoi)+'</b> · '+esc(c.luc)+'</div>'
+    +'<div class="bai">Bài: '+esc(c.bai)+'…</div><div class="nd">'+esc(c.nd)+'</div>';
+  if(c.loi)h+='<div class="note loi">Lần gửi trước bị lỗi: '+esc(c.loi)+'</div>';
+  if(c.tt==="DANG_GUI")return h+'<div class="note cho">Đang gửi trả lời lên Threads, khoảng 30 giây…</div></div>';
+  if(boQua)h+='<div class="note canh"><b>ChatGPT gợi ý</b>'+esc(c.goiY[0])+'</div>';
+  else if(!goiY.length)h+='<div class="actions" style="margin-top:6px"><button class="btn" data-hd="gptbl" data-k="'+esc(k)+'">Nhờ ChatGPT gợi ý</button><span class="sub">rồi chép câu ưng ý về ô dưới</span></div>';
+  else{
+    h+='<div class="goiy">';
+    goiY.forEach(function(g,i){h+='<button data-hd="chongoiy" data-k="'+esc(k)+'" data-i="'+i+'"'+(CHON[k]===i?' class="chon"':'')+'>'+esc(g)+'</button>'});
+    h+='</div>';
+  }
+  if(!boQua||MO[k]==="viet"){
+    h+='<textarea data-o="'+esc(k)+'" placeholder="Viết câu trả lời…">'+esc(NHAP[k])+'</textarea>'
+      +'<div class="actions"><button class="btn chinh" data-hd="guibl" data-k="'+esc(k)+'">Gửi trả lời</button><button class="btn" data-hd="boquabl" data-k="'+esc(k)+'">Bỏ qua</button></div>';
+  }else{
+    h+='<div class="actions"><button class="btn chinh" data-hd="boquabl" data-k="'+esc(k)+'">Bỏ qua</button><button class="btn" data-hd="vietbl" data-k="'+esc(k)+'">Vẫn trả lời</button></div>';
+  }
+  return h+'</div>';
+}
+
+/* ---------------- NHỜ CHATGPT (mở ChatGPT trên trình duyệt) ---------------- */
+var LUAT_GPT='Bạn là trợ lý viết bài Threads cho Sổ Lớp (@solopcuaban): ứng dụng sổ lớp, sổ điểm, sổ học phí trên điện thoại cho gia sư, giáo viên dạy thêm và trung tâm nhỏ. Mục tiêu: kéo thầy cô vào nhóm Zalo dùng thử (link ở trang cá nhân).\n'
+ +'LUẬT: tiếng Việt đời thường, gần gũi như người làm nghề dạy kể chuyện; không thuật ngữ, không chữ tiếng Anh, không giọng quảng cáo. Mỗi bài tối đa 500 ký tự. Không bịa số liệu, không hứa tính năng Sổ Lớp không có. Giờ Việt Nam.';
+var MAU_TRA_LOI='\n\nCÁCH TRẢ LỜI: viết nhận xét ngắn trước (nếu có), rồi đưa TẤT CẢ bài vào MỘT khung code, mỗi bài theo đúng mẫu dưới đây để mình dán thẳng vào ứng dụng:\n```\n[BAI]\nma: (mã bài nếu là bản sửa của bài có sẵn, bỏ trống nếu là bài mới)\nngay: YYYY-MM-DD\ngio: HH:MM\nthe: một thẻ chủ đề ngắn, không dấu chấm, không dấu #\nnoi_dung:\nnội dung bài ở đây\n[/BAI]\n```';
+function catNgan(s,k){s=String(s||"").replace(/\s+/g," ").trim();return s.length>k?s.slice(0,k)+"…":s}
+function dsDaDang(){return D.bai.filter(function(b){return b.tt==="DA_DANG"}).slice(-25)}
+function dsSapToi(){return D.bai.filter(function(b){return b.tt!=="DA_DANG"&&b.tt!=="DANG_DANG"&&b.t>=D.bayGio-3600000})}
+function ghiDaDang(){var ds=dsDaDang();if(!ds.length)return "\n\nBÀI ĐÃ ĐĂNG: chưa có.";
+  return "\n\nBÀI ĐÃ ĐĂNG GẦN ĐÂY (ngày giờ | thẻ | xem/thích/bình luận/đăng lại | mở đầu):\n"+ds.map(function(b){return b.iso+" "+b.gio+" | "+(b.chuDe||"-")+" | "+b.xem+"/"+b.thich+"/"+b.traLoi+"/"+b.dangLai+" | "+catNgan(b.nd,110)}).join("\n")}
+function ghiSapToi(day){var ds=dsSapToi();if(!ds.length)return "\n\nBÀI ĐÃ CÓ LỊCH: chưa có.";
+  return "\n\nBÀI ĐÃ CÓ LỊCH ("+(day?"đầy đủ":"chỉ để tránh trùng giờ")+"):\n"+ds.map(function(b){return (day?"ma: "+b.id+"\n":"")+b.iso+" "+b.gio+" | "+(b.chuDe||"-")+" | "+(TEN[b.tt]||b.tt)+(day?"\n"+b.nd+"\n---":" | "+catNgan(b.nd,60))}).join("\n")}
+function ghiLich(){var cd=D.lich||[];return cd.length?"\n\nLỊCH CHỦ ĐỀ MỖI TUẦN:\n"+cd.map(function(r){return r.thu+" "+r.gio+" | thẻ: "+r.the+" | "+r.chuDe}).join("\n"):""}
+function ngayCuoi(){var m="";D.bai.forEach(function(b){if(b.iso>m)m=b.iso});var homNay=new Date(D.bayGio+7*3600000).toISOString().slice(0,10);return m>homNay?m:homNay}
+function loiNho(kieu,them){
+  if(kieu==="viet")return LUAT_GPT+"\n\nVIỆC: viết bài cho 7 ngày tiếp theo, bắt đầu từ ngày sau "+ngayCuoi()+", theo lịch chủ đề (nếu có). Học từ bài đã đăng: bài nào nhiều xem, thích, bình luận thì học cách mở đầu và giọng của bài đó. Cứ khoảng 4 bài chuyện nghề vui thì có 1 bài nhẹ nhàng nhắc Sổ Lớp và mời vào nhóm dùng thử. Không trùng ngày giờ với bài đã có lịch. Để trống dòng ma."+ghiLich()+ghiDaDang()+ghiSapToi(false)+MAU_TRA_LOI;
+  if(kieu==="xemlai")return LUAT_GPT+"\n\nVIỆC: xem lại các bài sắp đăng dưới đây dựa trên tình hình bài đã đăng (bài nào hiệu quả, bài nào kém). Với từng bài: nói ngắn nên giữ hay sửa, vì sao. Bài nào nên sửa thì viết lại, GIỮ ĐÚNG dòng ma, ngày, giờ của bài đó. Bài nào giữ nguyên thì không cần đưa vào khung code."+ghiDaDang()+ghiSapToi(true)+MAU_TRA_LOI;
+  if(kieu==="phantich")return LUAT_GPT+"\n\nVIỆC: phân tích các bài đã đăng: khung giờ, thứ, thẻ, kiểu mở đầu nào hiệu quả, có số liệu cụ thể. Rồi đề xuất lịch 7 ngày cho tuần sau (thứ, giờ, thẻ, chủ đề). Trả lời ngắn gọn, dễ hiểu."+ghiLich()+ghiDaDang();
+  if(kieu==="binhluan"){var bl=(D.binhLuan||[]).filter(function(c){return c.tt!=="DANG_GUI"});
+    return LUAT_GPT+"\n\nVIỆC: với mỗi bình luận dưới đây, soạn 3 câu trả lời ngắn (1–2 câu), thân thiện, khác giọng nhau. Người hỏi giá hay cách dùng thì mời vào nhóm Zalo dùng thử (link ở trang cá nhân). Bình luận rác, quảng cáo, khiêu khích thì ghi BỎ QUA và lý do. Cuối cùng tóm tắt 2–3 câu mọi người đang nói gì.\n\nBÌNH LUẬN:\n"+(bl.length?bl.map(function(c,i){return (i+1)+". @"+c.nguoi+" (bài: "+catNgan(c.bai,60)+"): "+c.nd}).join("\n"):"chưa có");}
+  if(kieu==="suabai"){var b=them.b;return LUAT_GPT+"\n\nVIỆC: sửa bài dưới đây theo góp ý của mình. GIỮ ĐÚNG dòng ma, ngày, giờ."+(them.gopY?"\nGóp ý: "+them.gopY:"\nGóp ý: tự xem và làm bài hay hơn, dựa trên bài đã đăng hiệu quả.")+"\n\nBÀI CẦN SỬA:\nma: "+b.id+"\nngay: "+b.iso+"\ngio: "+b.gio+"\nthe: "+(b.chuDe||"")+"\nnoi_dung:\n"+b.nd+ghiDaDang()+MAU_TRA_LOI}
+  if(kieu==="blmot"){var c=them.c;return LUAT_GPT+"\n\nVIỆC: soạn 3 câu trả lời ngắn (1–2 câu), thân thiện, khác giọng nhau cho bình luận này. Hỏi giá hay cách dùng thì mời vào nhóm Zalo dùng thử. Rác hay khiêu khích thì khuyên bỏ qua.\n\nBài: "+c.bai+"\nBình luận của @"+c.nguoi+": "+c.nd}
+  return LUAT_GPT+"\n\nCÂU HỎI CỦA MÌNH: "+them.hoi+"\n\nNếu cần viết hoặc sửa bài thì đưa vào khung code theo mẫu bên dưới."+ghiLich()+ghiDaDang()+ghiSapToi(true)+MAU_TRA_LOI;
+}
+function chep(t){
+  try{navigator.clipboard.writeText(t).catch(function(){chepCu(t)})}catch(e){chepCu(t)}
+}
+function chepCu(t){try{var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}catch(e){}}
+function moChatGPT(loi){
+  chep(loi);
+  var url="https://chatgpt.com/?q="+encodeURIComponent(loi);
+  if(url.length>7500){url="https://chatgpt.com/";bao("Đã chép lời nhờ. Trong ChatGPT bấm Cmd+V (hoặc giữ, Dán) rồi gửi.")}
+  else bao("Đã mở ChatGPT. Làm xong, chép khung code về dán vào tab ChatGPT.");
+  window.open(url,"_blank","noopener");
+}
+/* Đọc kết quả ChatGPT dán vào */
+function docKetQua(t){
+  var ra=[],re=/\[BAI\]([\s\S]*?)\[\/BAI\]/gi,m;
+  while((m=re.exec(t))){
+    var khoi=m[1],o={ma:"",ngay:"",gio:"",the:"",nd:""};
+    var vt=khoi.search(/^\s*noi_dung\s*:/im);
+    var dau=vt>=0?khoi.slice(0,vt):khoi;
+    if(vt>=0)o.nd=khoi.slice(vt).replace(/^\s*noi_dung\s*:[ \t]*/i,"").trim();
+    dau.split("\n").forEach(function(d){var k=d.match(/^\s*(ma|ngay|gio|the)\s*:\s*(.*)$/i);if(k)o[k[1].toLowerCase()]=k[2].trim()});
+    if(/^\(|^-$|bỏ trống/i.test(o.ma))o.ma="";
+    o.gio=(o.gio.match(/\d{1,2}:\d{2}/)||[""])[0];if(o.gio.length===4)o.gio="0"+o.gio;
+    o.ngay=(o.ngay.match(/\d{4}-\d{2}-\d{2}/)||[""])[0];
+    o.the=o.the.replace(/[#.&]/g,"").trim();
+    ra.push(o);
+  }
+  return ra;
+}
+function duaVaoLich(){
+  var o=oNhap("dan"),t=o?o.value:"";var ds=docKetQua(t);
+  if(!ds.length){bao("Không thấy bài nào. Nhớ dán cả khung có [BAI] … [/BAI]");return}
+  khoaNut();var ok=0,loi=[];
+  var p=Promise.resolve();
+  ds.forEach(function(x,i){p=p.then(function(){
+    var ten="Bài "+(i+1)+(x.ngay?" ("+x.ngay+" "+x.gio+")":"");
+    if(!x.nd){loi.push(ten+": trống nội dung");return}
+    if(x.nd.length>MAX){loi.push(ten+": dài "+x.nd.length+" ký tự, tối đa "+MAX);return}
+    var b=x.ma?tim(x.ma):null;
+    if(x.ma&&!b){loi.push(ten+": không tìm thấy bài có mã này, nên thêm thành bài mới");}
+    if(b){
+      if(b.tt==="DA_DANG"||b.tt==="DANG_DANG"){loi.push(ten+": bài đã đăng, không sửa được");return}
+      return client.mutation("trang:capNhatBai",{key:KHOA,baiId:b.id,hanhDong:"sua",giaTri:x.nd})
+        .then(function(){return x.the?client.mutation("trang:capNhatBai",{key:KHOA,baiId:b.id,hanhDong:"the",giaTri:x.the}):null})
+        .then(function(){return (b.tt==="DUYET"||b.tt==="CAN_SUA")?client.mutation("trang:capNhatBai",{key:KHOA,baiId:b.id,hanhDong:"boduyet",giaTri:""}):null})
+        .then(function(){ok++}).catch(function(e){loi.push(ten+": "+loiChu(e))});
+    }
+    if(!x.ngay||!x.gio){loi.push(ten+": thiếu ngày hoặc giờ");return}
+    return client.mutation("trang:themBai",{key:KHOA,ngay:x.ngay,gio:x.gio,noiDung:x.nd,chuDe:x.the})
+      .then(function(){ok++}).catch(function(e){loi.push(ten+": "+loiChu(e))});
+  })});
+  p.then(function(){
+    KET_QUA_DAN={ok:ok,loi:loi};if(!loi.length)NHAP.dan="";
+    ve();bao(ok?"Đã đưa "+ok+" bài vào, chờ bạn duyệt":"Chưa đưa được bài nào");
+  });
+}
+var KET_QUA_DAN=null;
+
+/* ---------------- CÁC TAB ---------------- */
+function dong1(b){var t=b.nd.split("\n")[0];return t.length>70?t.slice(0,70)+"…":t}
+function hang(b,soLieu){
+  var k="row:"+b.id;
+  if(MO[k])return '<div class="hang mo" data-hd="hang" data-k="'+esc(k)+'"><span>Thu gọn ▲</span></div>'+the(b);
+  return '<div class="hang" data-hd="hang" data-k="'+esc(k)+'"><div class="hw"><b>'+esc(b.ngay)+'</b> '+esc(b.gio)+'</div><div class="ht">'+(b.anh?'🖼 ':'')+esc(dong1(b))+'</div>'
+    +(soLieu?'<div class="hs">'+n(b.xem)+' xem · '+n(b.thich)+' thích · '+n(b.traLoi)+' bl · '+tyLe(b)+'%</div>':'<span class="chip '+esc(b.tt)+'">'+(TEN[b.tt]||esc(b.tt))+'</span>')+'</div>';
+}
+function tyLe(b){return b.xem?Math.round((b.thich+b.traLoi+b.dangLai)/b.xem*1000)/10:0}
+function nhom(ds,khoaFn){
+  var m={};ds.forEach(function(b){var k=khoaFn(b)||"(trống)";if(!m[k])m[k]={k:k,so:0,xem:0,tt:0};m[k].so++;m[k].xem+=b.xem;m[k].tt+=b.thich+b.traLoi+b.dangLai});
+  return Object.keys(m).map(function(k){var x=m[k];x.tbXem=x.xem/x.so;x.tbTT=x.tt/x.so;return x}).sort(function(a,b){return b.tbTT-a.tbTT||b.tbXem-a.tbXem});
+}
+function bangNhom(ds,tieuDe){
+  if(!ds.length)return '';
+  var max=Math.max.apply(null,ds.map(function(x){return x.tbTT}))||1;
+  var h='<h2>'+tieuDe+'</h2><div class="ds">';
+  ds.forEach(function(x){h+='<div class="hang tinh"><div class="hw"><b>'+esc(x.k)+'</b> · '+x.so+' bài</div><div class="ht"><div class="thanh"><i style="width:'+Math.max(4,Math.round(x.tbTT/max*100))+'%"></i></div></div><div class="hs">'+n(Math.round(x.tbTT*10)/10)+' tương tác · '+n(Math.round(x.tbXem))+' xem /bài</div></div>'});
+  return h+'</div>';
+}
+function tabPhanTich(daDang){
+  var tong={xem:0,thich:0,traLoi:0};daDang.forEach(function(b){tong.xem+=b.xem;tong.thich+=b.thich;tong.traLoi+=b.traLoi});
+  var h='<div class="tiles"><div class="tile"><b>'+daDang.length+'</b><span>bài đã đăng</span></div><div class="tile"><b>'+n(tong.xem)+'</b><span>tổng lượt xem</span></div><div class="tile"><b>'+n(tong.thich)+'</b><span>tổng lượt thích</span></div><div class="tile"><b>'+n(tong.traLoi)+'</b><span>tổng bình luận</span></div></div>';
+  h+='<p class="sub">Cộng dồn mọi bài đã đăng, cập nhật 6 tiếng một lần. "Tương tác" = thích + bình luận + đăng lại.</p>';
+  var pt=D.phanTich;
+  if(pt){
+    h+='<h2>ChatGPT nhận xét</h2><div class="tonghop"><b>Cập nhật '+esc(pt.luc)+'</b>'+esc(pt.nhanXet||'')+'</div>';
+    if(pt.tuKhoa)h+='<div class="chips">'+pt.tuKhoa.split(",").map(function(t){t=t.trim();return t?'<span class="chip DUYET">'+esc(t)+'</span>':''}).join('')+'</div>';
+    if(pt.deXuat&&pt.deXuat.length){
+      h+='<h2>ChatGPT đề xuất lịch mới</h2><div class="ds">'+pt.deXuat.map(function(r){return '<div class="hang tinh"><div class="hw"><b>'+esc(r.thu)+'</b> '+esc(r.gio)+'</div><div class="ht">'+esc(r.chuDe)+'</div><span class="chip DA_DANG">'+esc(r.the)+'</span></div>'}).join('')+'</div>'
+        +'<div class="actions"><button class="btn chinh" data-hd="apdungdx">Áp dụng đề xuất</button><span class="sub">Lịch mới dùng từ lần viết bài Chủ nhật tới.</span></div>';
+    }
+  }
+  h+='<div class="actions"><button class="btn chinh" data-hd="gpt" data-kieu="phantich">Nhờ ChatGPT phân tích</button><span class="sub">Mở ChatGPT kèm sẵn số liệu bên dưới.</span></div>';
+  if(daDang.length){
+    h+=bangNhom(nhom(daDang,function(b){return b.gio}),'Khung giờ đăng nào hiệu quả');
+    h+=bangNhom(nhom(daDang,function(b){return b.ngay.split(" ")[0]}),'Ngày nào trong tuần hiệu quả');
+    h+=bangNhom(nhom(daDang,function(b){return b.chuDe}),'Thẻ chủ đề nào hiệu quả');
+    h+='<h2>Lịch sử đăng bài</h2><p class="sub">Bấm vào dòng để xem nội dung.</p><div class="ds">'+daDang.slice().reverse().map(function(b){return hang(b,true)}).join('')+'</div>';
+  }else h+='<div class="empty">Chưa đăng bài nào. Bài đầu tiên lên sau khi bạn bấm Duyệt.</div>';
+  return h;
+}
+function tabLich(sapToi){
+  var h='<div class="actions" style="margin-top:14px"><button class="btn chinh" data-hd="mothem">+ Thêm bài</button><button class="btn" data-hd="gpt" data-kieu="viet">Nhờ ChatGPT viết tuần tới</button><span class="sub">Bấm vào một dòng để xem đủ bài và các nút.</span></div>';
+  if(MO.them){
+    var mai=new Date(Date.now()+86400000+7*3600000).toISOString().slice(0,10);
+    h+='<div class="card" style="margin-top:10px"><div class="cd1"><input class="o" type="date" id="tbNgay" value="'+mai+'"><input class="o" type="time" id="tbGio" value="21:30"><input class="o" id="tbThe" placeholder="Thẻ chủ đề"></div>'
+      +'<textarea data-o="them" placeholder="Nội dung bài…">'+esc(NHAP.them||'')+'</textarea><div class="dem" data-dem="them">'+(NHAP.them||'').length+'/'+MAX+'</div>'
+      +'<div class="actions"><button class="btn chinh" data-hd="luuthem">Thêm vào lịch</button><button class="btn" data-hd="dongthem">Huỷ</button><span class="sub">Bài mới ở trạng thái Chờ duyệt.</span></div></div>';
+  }
+  h+=sapToi.length?'<div class="ds" style="margin-top:10px">'+sapToi.map(function(b){return hang(b,false)}).join('')+'</div>':'<div class="empty">Chưa có bài nào sắp tới. Vào tab ChatGPT, bấm "Viết bài tuần tới".</div>';
+  return h;
+}
+function tabCaiDat(){
+  var h='<h2>Tài khoản Threads</h2><div class="card">';
+  if(D.taiKhoan)h+='<div>Đang nối với <b>@'+esc(D.taiKhoan.username)+'</b>'+(D.taiKhoan.hetHan?' <span class="sub">· mã dùng đến '+esc(D.taiKhoan.hetHan)+' (tự làm mới mỗi thứ hai)</span>':'')+'</div>';
+  else h+='<div class="note canh">Chưa nối tài khoản Threads, nên chưa đăng bài được.</div>';
+  h+='<div class="actions"><button class="btn chinh" data-hd="ketnoi">'+(D.taiKhoan?'Kết nối lại':'Kết nối Threads')+'</button></div>'
+    +'<p class="sub" style="margin-top:12px">Hoặc dán mã Threads (cách cũ):</p><div class="cd1"><input class="o" id="maThreads" type="password" placeholder="Mã Threads"><button class="btn" data-hd="danma">Lưu mã</button></div></div>';
+
+  var cd=D.lich||[];
+  h+='<h2>Lịch chủ đề mỗi tuần</h2><p class="sub">ChatGPT viết bài theo lịch này khi bạn bấm "Viết bài tuần tới". Sửa xong bấm Lưu.</p><div class="ds">';
+  cd.forEach(function(r,i){
+    h+='<div class="cd"><div class="cd1"><input class="o" data-cd="'+i+'" data-f="thu" value="'+esc(r.thu)+'"><input class="o gio" data-cd="'+i+'" data-f="gio" value="'+esc(r.gio)+'" placeholder="21:30"><input class="o" data-cd="'+i+'" data-f="the" value="'+esc(r.the)+'" placeholder="Thẻ"></div>'
+      +'<input class="o rong" data-cd="'+i+'" data-f="chuDe" value="'+esc(r.chuDe)+'" placeholder="Chủ đề bài"></div>';
+  });
+  h+='</div><div class="actions"><button class="btn chinh" data-hd="luucd">Lưu lịch</button><button class="btn" data-hd="themcd">Thêm dòng</button></div>';
+
+  h+='<h2>Khoá ra vào</h2><p class="sub">Khoá chủ để mở trang này. Khoá Ghim để cắm vào Ghim. Ai có khoá là vào được, nên đừng đưa lung tung.</p><div class="ds">';
+  (D.khoa||[]).forEach(function(k){h+='<div class="hang tinh"><div class="hw"><b>'+esc(LOAI_KHOA[k.loai]||k.loai)+'</b></div><div class="ht">'+esc(k.ten)+' <span class="sub">· '+esc(k.dau)+'…</span>'+(k.laToi?' <span class="sub">(đang dùng)</span>':'')+'</div>'+(k.laToi?'':'<button class="btn do" data-hd="xoakhoa" data-k="'+esc(k.ma)+'">Xoá</button>')+'</div>'});
+  h+='</div><div class="cd1" style="margin-top:10px"><select class="o" id="kmLoai"><option value="tro_ly">Trợ lý</option><option value="plugin">Ghim</option><option value="chu">Chủ (máy khác)</option></select><input class="o" id="kmTen" placeholder="Tên gợi nhớ (VD: ChatGPT định kỳ)"><button class="btn" data-hd="taokhoa">Tạo khoá mới</button></div>';
+  if(KHOA_MOI)h+='<div class="note canh"><b>Khoá mới — chép lại ngay, đóng trang là không xem lại được</b><div class="khoamoi">'+esc(KHOA_MOI)+'</div><div class="actions"><button class="btn" data-hd="chepkhoa">Chép</button></div></div>';
+
+  h+='<h2>Máy này</h2><div class="actions"><button class="btn" data-hd="dangxuat">Đăng xuất</button><span class="sub">Máy chủ: '+esc(MC)+'</span></div>';
+  return h;
+}
+function tabHoi(){
+  var h='<h2>Nhờ ChatGPT</h2><p class="sub">Bấm một nút: ChatGPT mở ra ở thẻ mới, đã kèm sẵn tình hình bài đăng hiện tại. Bạn trò chuyện thoải mái bên đó. Xong, chép khung code ChatGPT đưa về dán vào ô bên dưới.</p>'
+    +'<div class="actions"><button class="btn chinh" data-hd="gpt" data-kieu="viet">Viết bài tuần tới</button><button class="btn" data-hd="gpt" data-kieu="xemlai">Xem lại bài sắp đăng, đề xuất sửa</button><button class="btn" data-hd="gpt" data-kieu="phantich">Phân tích bài đã đăng</button><button class="btn" data-hd="gpt" data-kieu="binhluan">Gợi ý trả lời bình luận</button></div>';
+  h+='<h2>Hỏi ChatGPT điều khác</h2><textarea data-o="hoi" placeholder="VD: Tuần này bài nào hiệu quả nhất, vì sao? Nên viết thêm chủ đề gì?">'+esc(NHAP.hoi||'')+'</textarea><div class="actions"><button class="btn chinh" data-hd="gpthoi">Mở ChatGPT để hỏi</button><a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">Chỉ mở ChatGPT</a></div>';
+  h+='<h2>Dán kết quả từ ChatGPT</h2><p class="sub">Dán nguyên khung có [BAI] … [/BAI]. Bài mới được thêm vào lịch, bài có mã thì thay nội dung. Tất cả về Chờ duyệt, bạn duyệt rồi mới đăng.</p>'
+    +'<textarea data-o="dan" placeholder="[BAI]&#10;ma:&#10;ngay: 2026-10-31&#10;gio: 21:30&#10;the: Gia sư&#10;noi_dung:&#10;…&#10;[/BAI]">'+esc(NHAP.dan||'')+'</textarea><div class="actions"><button class="btn chinh" data-hd="duavao">Đưa vào lịch</button></div>';
+  if(KET_QUA_DAN){h+='<div class="note '+(KET_QUA_DAN.loi.length?'canh':'claude')+'"><b>Lần dán vừa rồi</b>Đã đưa '+KET_QUA_DAN.ok+' bài vào.'+(KET_QUA_DAN.loi.length?'\nChưa được:\n- '+esc(KET_QUA_DAN.loi.join('\n- ')):'')+'</div>'}
+  return h;
+}
+
+function ve(){
+  if(!D)return;
+  var daDang=D.bai.filter(function(b){return b.tt==="DA_DANG"});
+  var sapToi=D.bai.filter(function(b){return b.tt!=="DA_DANG"&&(b.t>=D.bayGio-86400000||b.tt==="LOI"||b.tt==="CAN_SUA"||b.tt==="CHO_DUYET")});
+  var choBan=sapToi.filter(function(b){return b.tt==="CHO_DUYET"||b.tt==="LOI"||b.tt==="CAN_SUA"});
+  var bls=D.binhLuan||[];
+  var soViec=bls.filter(function(c){return c.tt!=="DANG_GUI"}).length+choBan.filter(function(b){return b.tt!=="CAN_SUA"}).length;
+  var choHoi=(D.hoiDap||[]).filter(function(q){return q.tt!=="DA_TRA_LOI"}).length;
+  var h='<div class="top"><div><h1>'+esc(D.ten||"Điều hành Threads")+' · Threads</h1><div class="sub">'+(D.taiKhoan?'@'+esc(D.taiKhoan.username):'chưa nối Threads')+' · cập nhật '+esc(D.capNhat)+' · tự cập nhật</div></div></div>';
+  if(D.canhBao&&D.canhBao.length){
+    h+='<div class="canhbao">'+D.canhBao.slice(0,3).map(function(c){return '<div style="margin-bottom:6px"><b>'+esc(c.tieuDe)+' · '+esc(c.luc)+'</b>'+esc(c.nd)+'</div>'}).join('')
+      +'<button class="btn" data-hd="daxemcb">Đã xem</button></div>';
+  }
+  var tabs=[["viec","Cần xử lý",soViec],["lich","Lịch đăng",sapToi.length],["phantich","Phân tích",daDang.length],["caidat","Cài đặt",D.taiKhoan?"":"!"],["hoi","ChatGPT",""]];
+  h+='<div class="tabs">'+tabs.map(function(t){return '<button class="tab'+(TAB===t[0]?' on':'')+'" data-hd="tab" data-tab="'+t[0]+'">'+t[1]+(t[2]!==""&&t[2]!==0?' <span class="so">'+t[2]+'</span>':'')+'</button>'}).join('')+'</div>';
+  if(TAB==="viec"){
+    h+='<h2>Bình luận chờ trả lời ('+bls.length+')</h2>';
+    if(D.tongHop)h+='<div class="tonghop"><b>ChatGPT tóm tắt · '+esc(D.tongHopLuc)+'</b>'+esc(D.tongHop)+'</div>';
+    h+=bls.length?bls.map(theBL).join(''):'<div class="empty">Không có bình luận mới. Bình luận được kéo về 15 phút một lần.</div>';
+    h+='<h2>Bài chờ bạn duyệt ('+choBan.length+')</h2>';
+    h+=choBan.length?choBan.map(the).join(''):'<div class="empty">Không có bài nào chờ duyệt.</div>';
+  }else if(TAB==="lich")h+=tabLich(sapToi);
+  else if(TAB==="phantich")h+=tabPhanTich(daDang);
+  else if(TAB==="caidat")h+=tabCaiDat();
+  else h+=tabHoi();
+  document.getElementById("app").innerHTML=h;
+}
+
+/* ---------------- BẤM NÚT ---------------- */
+function tim(id){for(var i=0;i<D.bai.length;i++)if(D.bai[i].id===id)return D.bai[i]}
+function timBL(k){for(var i=0;i<(D.binhLuan||[]).length;i++)if("bl:"+D.binhLuan[i].ma===k)return D.binhLuan[i]}
+function oNhap(k){var a=document.querySelectorAll("textarea[data-o]");for(var i=0;i<a.length;i++)if(a[i].getAttribute("data-o")===k)return a[i]}
+function gt(id){var el=document.getElementById(id);return el?el.value:""}
+function docCD(){
+  var cd=(D.lich||[]).map(function(r){return {thu:r.thu,gio:r.gio,chuDe:r.chuDe,the:r.the}});
+  document.querySelectorAll("input[data-cd]").forEach(function(o){var i=Number(o.getAttribute("data-cd"));if(cd[i])cd[i][o.getAttribute("data-f")]=o.value});
+  return cd.filter(function(r){return (r.thu||"").trim()||(r.chuDe||"").trim()});
+}
+
+document.addEventListener("click",function(e){
+  var el=e.target.closest("[data-hd]");if(!el)return;
+  var hd=el.getAttribute("data-hd");
+  if(hd==="dangnhap"){
+    var mc=DIA_CHI_MAY_CHU||gt("dnMc").trim(),kh=gt("dnKhoa").trim();
+    if(!/^https:\/\/.+\.convex\.cloud\/?$/.test(mc)){veDangNhap("Địa chỉ máy chủ phải có dạng https://….convex.cloud");return}
+    if(!kh){veDangNhap("Bạn chưa dán khoá.");return}
+    MC=mc.replace(/\/$/,"");KHOA=kh;try{localStorage.setItem("thr_mc",MC);localStorage.setItem("thr_khoa",KHOA)}catch(x){}
+    document.getElementById("app").innerHTML='<div class="empty">Đang mở…</div>';batDau();return;
+  }
+  if(!D)return;
+  if(hd==="mo"){el.classList.toggle("gon");return}
+  if(hd==="tab"){TAB=el.getAttribute("data-tab");KHOA_MOI="";ve();window.scrollTo(0,0);return}
+  if(hd==="hang"){var kh2=el.getAttribute("data-k");if(MO[kh2])delete MO[kh2];else MO[kh2]=1;ve();return}
+  if(hd==="daxemcb")return chay("mutation","trang:daXemCanhBao",{},"");
+  if(hd==="luucd")return chay("mutation","trang:luuLich",{dong:docCD()},"Đã lưu lịch, áp dụng từ Chủ nhật tới");
+  if(hd==="themcd"){D.lich=docCD();D.lich.push({thu:"",gio:"",chuDe:"",the:""});ve();return}
+  if(hd==="apdungdx"){if(!confirm("Thay lịch hiện tại bằng lịch ChatGPT đề xuất?"))return;return chay("mutation","trang:luuLich",{dong:D.phanTich.deXuat.map(function(r){return {thu:r.thu,gio:r.gio,chuDe:r.chuDe,the:r.the}})},"Đã áp dụng lịch mới")}
+  if(hd==="gpt"){moChatGPT(loiNho(el.getAttribute("data-kieu"),{}));return}
+  if(hd==="gpthoi"){var oq=oNhap("hoi"),qq=oq?oq.value:"";if(!qq.trim()){bao("Bạn chưa gõ câu hỏi");return}moChatGPT(loiNho("hoi",{hoi:qq}));return}
+  if(hd==="duavao")return duaVaoLich();
+  if(hd==="mothem"){MO.them=1;ve();return}
+  if(hd==="dongthem"){delete MO.them;ve();return}
+  if(hd==="luuthem"){var ot=oNhap("them");return chay("mutation","trang:themBai",{ngay:gt("tbNgay"),gio:gt("tbGio"),noiDung:ot?ot.value:"",chuDe:gt("tbThe")},"Đã thêm bài, nhớ bấm Duyệt",function(){delete MO.them;NHAP.them=""})}
+  if(hd==="ketnoi"){
+    khoaNut();
+    client.action("trang:layLinkKetNoi",{key:KHOA,trangUrl:location.href.split("#")[0].split("?")[0]})
+      .then(function(url){location.href=url}).catch(function(x){ve();bao(loiChu(x))});return;
+  }
+  if(hd==="danma"){var ma=gt("maThreads").trim();if(!ma){bao("Bạn chưa dán mã");return}return chay("action","trang:ketNoiBangMa",{token:ma},"",function(u){bao("Đã nối với @"+u)})}
+  if(hd==="luutl")return chay("mutation","trang:luuGoiTroLy",{url:gt("tlUrl"),token:gt("tlToken")},"Đã lưu");
+  if(hd==="taokhoa")return chay("action","trang:taoKhoaMoi",{loai:gt("kmLoai"),ten:gt("kmTen")},"Đã tạo khoá",function(k){KHOA_MOI=k});
+  if(hd==="chepkhoa"){try{navigator.clipboard.writeText(KHOA_MOI);bao("Đã chép")}catch(x){bao("Chép tay giúp mình nhé")}return}
+  if(hd==="xoakhoa"){if(!confirm("Xoá khoá này? Ai đang dùng nó sẽ không vào được nữa."))return;return chay("mutation","trang:xoaKhoa",{khoaId:el.getAttribute("data-k")},"Đã xoá khoá")}
+  if(hd==="dangxuat"){try{localStorage.removeItem("thr_khoa")}catch(x){}KHOA="";D=null;if(huyNghe)huyNghe();veDangNhap();return}
+
+  if(hd==="gptbl"||hd==="chongoiy"||hd==="guibl"||hd==="boquabl"||hd==="vietbl"){
+    var kb=el.getAttribute("data-k"),c=timBL(kb);if(!c)return;
+    if(hd==="gptbl"){moChatGPT(loiNho("blmot",{c:c}));return}
+    if(hd==="chongoiy"){var i=Number(el.getAttribute("data-i"));CHON[kb]=i;NHAP[kb]=c.goiY[i];ve();return}
+    if(hd==="vietbl"){MO[kb]="viet";NHAP[kb]="";ve();return}
+    if(hd==="boquabl")return chay("mutation","trang:xuLyBinhLuan",{blId:c.ma,hanhDong:"boqua"},"Đã bỏ qua");
+    var ob=oNhap(kb);return chay("mutation","trang:xuLyBinhLuan",{blId:c.ma,hanhDong:"gui",noiDung:ob?ob.value:NHAP[kb]},"Đang gửi lên Threads…",function(){delete NHAP[kb]});
+  }
+
+  var k=el.getAttribute("data-k"),b=tim(k);if(!b)return;
+  if(hd==="mosua"||hd==="mogopy"||hd==="mogio"||hd==="moxoa"){MO[k]=hd.slice(2);ve();return}
+  if(hd==="dong"){delete MO[k];ve();return}
+  if(hd==="duyet")return capNhat(b,"duyet","","Đã duyệt, bài sẽ lên đúng giờ");
+  if(hd==="boduyet")return capNhat(b,"boduyet","","Đã bỏ duyệt");
+  if(hd==="huygopy")return capNhat(b,"huygopy","","Đã giữ bản hiện tại");
+  if(hd==="boanh")return capNhat(b,"boanh","","Đã bỏ ảnh/video");
+  if(hd==="xoathat")return capNhat(b,"xoa","","Đã xoá bài");
+  if(hd==="themanh"){BAI_CHO_ANH=b.id;document.getElementById("chonFile").click();return}
+  if(hd==="luugio"){var d=gt("gd_"+k),t=gt("gt_"+k);if(!d||!t){bao("Chọn đủ ngày và giờ");return}
+    return capNhat(b,"doigio",d+" "+t.slice(0,5),"Đã đổi sang "+t.slice(0,5)+" ngày "+d.split("-").reverse().slice(0,2).join("/"))}
+  var o=oNhap(k);
+  if(hd==="luusua"){var the1=gt("th_"+k);khoaNut();
+    return client.mutation("trang:capNhatBai",{key:KHOA,baiId:b.id,hanhDong:"the",giaTri:the1})
+      .then(function(){return capNhat(b,"sua",o?o.value:"","Đã lưu nội dung mới")}).catch(function(x){ve();bao("Lỗi: "+loiChu(x))})}
+  if(hd==="guigopy"){moChatGPT(loiNho("suabai",{b:b,gopY:o?o.value.trim():""}));delete MO[k];TAB="hoi";ve();return}
+});
+
+/* Tải ảnh/video lên */
+document.getElementById("chonFile").addEventListener("change",function(e){
+  var f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!BAI_CHO_ANH)return;
+  var laVideo=/^video\//.test(f.type);
+  if(f.size>(laVideo?1000:8)*1024*1024){bao(laVideo?"Video tối đa 1GB":"Ảnh tối đa 8MB");return}
+  var baiId=BAI_CHO_ANH;BAI_CHO_ANH=null;khoaNut();bao("Đang tải lên…");
+  client.mutation("trang:taoLinkTaiLen",{key:KHOA}).then(function(url){
+    return fetch(url,{method:"POST",headers:{"Content-Type":f.type},body:f});
+  }).then(function(r){if(!r.ok)throw new Error("Tải lên lỗi");return r.json()}).then(function(j){
+    return client.mutation("trang:ganAnh",{key:KHOA,baiId:baiId,storageId:j.storageId,loai:laVideo?"VIDEO":"IMAGE"});
+  }).then(function(){ve();bao("Đã gắn "+(laVideo?"video":"ảnh"))}).catch(function(x){ve();bao("Lỗi: "+loiChu(x))});
+});
+
+document.addEventListener("input",function(e){
+  if(!e.target.matches("textarea[data-o]"))return;
+  var k=e.target.getAttribute("data-o");
+  if(k==="hoi"||k==="them"||k==="dan")NHAP[k]=e.target.value;
+  if(k.indexOf("bl:")===0){NHAP[k]=e.target.value;CHON[k]=-1;return}
+  var d=document.querySelector('[data-dem="'+k+'"]');
+  if(d){d.textContent=e.target.value.length+"/"+MAX;d.classList.toggle("vuot",e.target.value.length>MAX)}
+});
+
+batDau();
+</script>
+</body>
+</html>
