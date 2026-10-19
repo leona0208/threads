@@ -307,7 +307,7 @@ function bangNhom(ds,tieuDe){
 function tabPhanTich(daDang){
   var tong={xem:0,thich:0,traLoi:0};daDang.forEach(function(b){tong.xem+=b.xem;tong.thich+=b.thich;tong.traLoi+=b.traLoi});
   var h='<div class="tiles"><div class="tile"><b>'+daDang.length+'</b><span>bài đã đăng</span></div><div class="tile"><b>'+n(tong.xem)+'</b><span>tổng lượt xem</span></div><div class="tile"><b>'+n(tong.thich)+'</b><span>tổng lượt thích</span></div><div class="tile"><b>'+n(tong.traLoi)+'</b><span>tổng bình luận</span></div></div>';
-  h+='<p class="sub">Cộng dồn mọi bài đã đăng, cập nhật 6 tiếng một lần. "Tương tác" = thích + bình luận + đăng lại.</p>';
+  h+='<p class="sub">Cộng dồn mọi bài đã đăng, cập nhật mỗi tiếng một lần. "Tương tác" = thích + bình luận + đăng lại.</p>';
   var pt=D.phanTich;
   if(pt){
     h+='<h2>ChatGPT nhận xét</h2><div class="tonghop"><b>Cập nhật '+esc(pt.luc)+'</b>'+esc(pt.nhanXet||'')+'</div>';
