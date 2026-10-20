@@ -81,11 +81,15 @@ select.o{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line
 <script src="https://cdn.jsdelivr.net/npm/convex@1.47.0/dist/browser.bundle.js"></script>
 <script>
 /* ====== SỬA DÒNG NÀY SAU KHI CÀI CONVEX (địa chỉ kết thúc bằng .convex.cloud) ====== */
-var DIA_CHI_MAY_CHU = "https://fast-ermine-363.ap-southeast-2.convex.cloud";
+var DIA_CHI_MAY_CHU = "https://healthy-squid-163.ap-southeast-2.convex.cloud";
 /* ===================================================================================== */
 
 var KHOA = "", MC = "", client = null, huyNghe = null;
 try { KHOA = localStorage.getItem("thr_khoa") || ""; MC = localStorage.getItem("thr_mc") || DIA_CHI_MAY_CHU; } catch (e) { MC = DIA_CHI_MAY_CHU; }
+if (MC === "https://fast-ermine-363.ap-southeast-2.convex.cloud") {
+  MC = DIA_CHI_MAY_CHU;
+  try { localStorage.setItem("thr_mc", MC); } catch (e) {}
+}
 
 var D = null, TAB = "viec", MO = {}, NHAP = {}, CHON = {}, CHO_VE = false, KHOA_MOI = "", BAI_CHO_ANH = null;
 var TEN = {CHO_DUYET:"Chờ duyệt",DUYET:"Đã duyệt",DANG_DANG:"Đang đăng",DA_DANG:"Đã đăng",LOI:"Lỗi",CAN_SUA:"Chờ ChatGPT sửa"};
